@@ -1,5 +1,5 @@
-﻿using Harmony;
-using CIL = Harmony.CodeInstruction;
+﻿using HarmonyLib;
+using CIL = HarmonyLib.CodeInstruction;
 using Microsoft.Xna.Framework;
 using StardewModdingAPI;
 using StardewValley;
@@ -18,7 +18,7 @@ using xTile.Dimensions;
 namespace AngryGrandpa
 {
     /// <summary>The class for patching methods on the StardewValley.Farm class.</summary>
-	class FarmPatches
+    public class FarmPatches
 	{
         /*********
         ** Accessors
@@ -26,7 +26,7 @@ namespace AngryGrandpa
         private static IModHelper Helper => ModEntry.Instance.Helper;
 		private static IMonitor Monitor => ModEntry.Instance.Monitor;
 		private static ModConfig Config => ModConfig.Instance;
-		private static HarmonyInstance Harmony => ModEntry.Instance.Harmony;
+		private static Harmony Harmony => ModEntry.Instance.Harmony;
 
 
         /*********

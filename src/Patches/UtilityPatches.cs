@@ -1,4 +1,4 @@
-﻿using Harmony;
+﻿using HarmonyLib;
 using StardewModdingAPI;
 using StardewValley;
 using System;
@@ -6,7 +6,7 @@ using System;
 namespace AngryGrandpa
 {
 	/// <summary>The class for patching methods on the StardewValley.Utility class.</summary>
-	class UtilityPatches
+	public class UtilityPatches
 	{
 		/*********
         ** Accessors
@@ -14,7 +14,7 @@ namespace AngryGrandpa
 		private static IModHelper Helper => ModEntry.Instance.Helper;
 		private static IMonitor Monitor => ModEntry.Instance.Monitor;
 		private static ModConfig Config => ModConfig.Instance;
-		private static HarmonyInstance Harmony => ModEntry.Instance.Harmony;
+		private static Harmony Harmony => ModEntry.Instance.Harmony;
 
 
 		/*********

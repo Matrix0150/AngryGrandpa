@@ -1,4 +1,4 @@
-﻿using Harmony;
+﻿using HarmonyLib;
 using Microsoft.Xna.Framework;
 using StardewModdingAPI;
 using StardewValley;
@@ -8,7 +8,7 @@ using System.Collections.Generic;
 namespace AngryGrandpa
 {
 	/// <summary>The class for patching methods on the StardewValley.Event class.</summary>
-	class EventPatches
+	public class EventPatches
 	{
 		/*********
         ** Accessors
@@ -16,7 +16,7 @@ namespace AngryGrandpa
 		private static IModHelper Helper => ModEntry.Instance.Helper;
 		private static IMonitor Monitor => ModEntry.Instance.Monitor;
 		private static ModConfig Config => ModConfig.Instance;
-		private static HarmonyInstance Harmony => ModEntry.Instance.Harmony;
+		private static Harmony Harmony => ModEntry.Instance.Harmony;
 
 
 		/*********
@@ -35,7 +35,7 @@ namespace AngryGrandpa
 		{
 			Harmony.Patch(
 				original: AccessTools.Method(typeof(Event),
-					nameof(Event.command_grandpaEvaluation)),
+					nameof(Event.DefaultCommands.GrandpaEvaluation)),
 				prefix: new HarmonyMethod(typeof(EventPatches),
 					nameof(EventPatches.grandpaEvaluations_Prefix)),
 				postfix: new HarmonyMethod(typeof(EventPatches),
@@ -43,7 +43,7 @@ namespace AngryGrandpa
 			);
 			Harmony.Patch(
 				original: AccessTools.Method(typeof(Event),
-					nameof(Event.command_grandpaEvaluation2)),
+					nameof(Event.DefaultCommands.GrandpaEvaluation2)),
 				prefix: new HarmonyMethod(typeof(EventPatches),
 					nameof(EventPatches.grandpaEvaluations_Prefix)),
 				postfix: new HarmonyMethod(typeof(EventPatches),
@@ -63,10 +63,10 @@ namespace AngryGrandpa
 		/// </summary>
 		public static void grandpaEvaluations_Prefix()
 		{
-			var game = Game1.game1;
+			Game1 game = Game1.game1;
 			try
 			{
-				Helper.Content.InvalidateCache("Strings\\StringsFromCSFiles"); // Refresh cache before use
+				Helper.GameContent.InvalidateCache("Strings\\StringsFromCSFiles"); // Refresh cache before use
 			}
 			catch (Exception ex)
 			{
@@ -87,8 +87,8 @@ namespace AngryGrandpa
 			{
 				switch (__instance.id) // Check which event this is... we're patching skipEvent and don't want to affect all.
 				{
-					case 558291: // Initial
-					case 558292: // Reevaluation
+					case "558291": // Initial
+					case "558292": // Reevaluation
 
 						CheckWorldForStatueOfPerfection(); // Add reward flag to host if any pre-existing statue
 						foreach (int e in new List<int> { 2146991, 321777 }) // Remove candles event, re-evaluation flag

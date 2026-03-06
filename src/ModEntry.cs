@@ -3,7 +3,7 @@ using Microsoft.Xna.Framework;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewValley;
-using Harmony;
+using HarmonyLib;
 using Netcode;
 using StardewValley.Locations;
 using System.Collections.Generic;
@@ -19,7 +19,7 @@ namespace AngryGrandpa
         ** Fields
         *********/
         internal static ModEntry Instance { get; private set; }
-        internal HarmonyInstance Harmony { get; private set; }
+        internal Harmony Harmony { get; private set; }
 
         /// <summary>Whether the next tick is the first one.</summary>
         private bool IsFirstTick = true;
@@ -43,9 +43,10 @@ namespace AngryGrandpa
             // Make resources available.
             Instance = this;
             ModConfig.Load();
-
+            
             // Apply Harmony patches.
-            Harmony = HarmonyInstance.Create(ModManifest.UniqueID);
+            Harmony = new Harmony(ModManifest.UniqueID);
+            //Harmony.PatchAll();
             EventPatches.Apply();
             FarmPatches.Apply();
             ItemGrabMenuPatches.Apply();
@@ -63,7 +64,7 @@ namespace AngryGrandpa
             helper.Events.Player.Warped += this.onWarped;
 
             // Set up early portrait asset editor - used if set to automatic.
-            helper.Content.AssetEditors.Add(new PortraitEditor(overrideEdits: false));
+            helper.GameContent.AssetEditors.Add(new PortraitEditor(overrideEdits: false));
         }
 
 
@@ -101,7 +102,7 @@ namespace AngryGrandpa
                 Instance.Helper.Events.GameLoop.UpdateTicked -= this.onUpdateTicked; // Don't check again
 
                 // Set up asset loaders/editors. PortraitEditor is added in the Entry method instead.
-                Instance.Helper.Content.AssetEditors.Add(new GrandpaNoteEditor());
+                Instance.Helper.Content.AssetEditors.Add(new AssetEditor());
                 Instance.Helper.Content.AssetEditors.Add(new EventEditor());
                 Instance.Helper.Content.AssetEditors.Add(new EvaluationEditor());
                 Instance.Helper.Content.AssetEditors.Add(new PortraitEditor(overrideEdits: true));

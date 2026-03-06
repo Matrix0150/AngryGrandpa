@@ -1,5 +1,5 @@
-﻿using Harmony;
-using CIL = Harmony.CodeInstruction;
+﻿using HarmonyLib;
+using CIL = HarmonyLib.CodeInstruction;
 using StardewModdingAPI;
 using StardewValley;
 using StardewValley.Menus;
@@ -13,14 +13,14 @@ using System.Reflection;
 namespace AngryGrandpa
 {
     /// <summary>The class for patching methods on the StardewValley.Menus.ItemGrabMenu class.</summary>
-    class ItemGrabMenuPatches
+    public class ItemGrabMenuPatches
     {
         /*********
         ** Accessors
         *********/
         private static IModHelper Helper => ModEntry.Instance.Helper;
         private static IMonitor Monitor => ModEntry.Instance.Monitor;
-        private static HarmonyInstance Harmony => ModEntry.Instance.Harmony;
+        private static Harmony Harmony => ModEntry.Instance.Harmony;
 
 
         /*********
