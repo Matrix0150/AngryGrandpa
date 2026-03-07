@@ -34,26 +34,26 @@ namespace AngryGrandpa
 		public static void Apply()
 		{
 			Harmony.Patch(
-				original: AccessTools.Method(typeof(Event),
+				original: AccessTools.Method(typeof(Event.DefaultCommands),
 					nameof(Event.DefaultCommands.GrandpaEvaluation)),
 				prefix: new HarmonyMethod(typeof(EventPatches),
-					nameof(EventPatches.grandpaEvaluations_Prefix)),
+					nameof(GrandpaEvaluations_Prefix)),
 				postfix: new HarmonyMethod(typeof(EventPatches),
-					nameof(EventPatches.grandpaEvaluations_Postfix))
+					nameof(GrandpaEvaluations_Postfix))
 			);
 			Harmony.Patch(
-				original: AccessTools.Method(typeof(Event),
+				original: AccessTools.Method(typeof(Event.DefaultCommands),
 					nameof(Event.DefaultCommands.GrandpaEvaluation2)),
 				prefix: new HarmonyMethod(typeof(EventPatches),
-					nameof(EventPatches.grandpaEvaluations_Prefix)),
+					nameof(GrandpaEvaluations_Prefix)),
 				postfix: new HarmonyMethod(typeof(EventPatches),
-					nameof(EventPatches.grandpaEvaluations_Postfix))
+					nameof(GrandpaEvaluations_Postfix))
 			);
 			Harmony.Patch(
 				original: AccessTools.Method(typeof(Event),
 					nameof(Event.skipEvent)),
 				postfix: new HarmonyMethod(typeof(EventPatches),
-					nameof(EventPatches.grandpaEvaluations_Postfix))
+					nameof(SkipEvent_Postfix))
 			);
 		}
 
@@ -61,8 +61,10 @@ namespace AngryGrandpa
 		/// Invalidates cached assets for grandpaEvaluations right before they are used.
 		/// This ensures that the correct dialogue (for years, fifthCandle etc.) is applied for the event.
 		/// </summary>
-		public static void grandpaEvaluations_Prefix()
+		public static void GrandpaEvaluations_Prefix()
 		{
+			//Log!
+			Monitor.Log($"Grandpa evaluations prefix called!", LogLevel.Info);
 			Game1 game = Game1.game1;
 			try
 			{
@@ -70,9 +72,14 @@ namespace AngryGrandpa
 			}
 			catch (Exception ex)
 			{
-				Monitor.Log($"Failed in {nameof(grandpaEvaluations_Prefix)}:\n{ex}",
+				Monitor.Log($"Failed in {nameof(GrandpaEvaluations_Prefix)}:\n{ex}",
 					LogLevel.Error);
 			}
+		}
+
+		public static void SkipEvent_Postfix(Event __instance)
+		{
+			GrandpaEvaluations_Postfix(__instance);
 		}
 
 		/// <summary>
@@ -80,12 +87,14 @@ namespace AngryGrandpa
 		/// Also handles event flag removal, mail flag assignment, and checks for a host-owned Statue of Perfection (including for skipped events).
 		/// Called after grandpaEvaluation, grandpaEvaluation2, or when any event is skipped.
 		/// </summary>
-		/// <param name="__instance">The Event instance (Always containing grandpaEvaluation/grandpaEvaluation2, or any skipped event)</param>
-		public static void grandpaEvaluations_Postfix(Event __instance)
+		/// <param name="event">The Event instance (Always containing grandpaEvaluation/grandpaEvaluation2, or any skipped event)</param>
+		public static void GrandpaEvaluations_Postfix(Event @event)
 		{
 			try
 			{
-				switch (__instance.id) // Check which event this is... we're patching skipEvent and don't want to affect all.
+				//Log!
+				Monitor.Log($"Running postfix for event {@event.id} (skipped: {@event.skipped})", LogLevel.Info);
+				switch (@event.id) // Check which event this is... we're patching skipEvent and don't want to affect all.
 				{
 					case Data.EventEval:
 					case Data.EventReeval:
@@ -97,7 +106,7 @@ namespace AngryGrandpa
 						// Add a mail flag the FIRST time this mod is used for any evaluation. 
 						Game1.player.mailReceived.Add("6324hasDoneModdedEvaluation"); // This activates bonus rewards if enabled.
 
-						if (Config.ShowPointsTotal && !__instance.skipped) // Don't show if disabled in config or the event was skipped
+						if (Config.ShowPointsTotal && !@event.skipped) // Don't show if disabled in config or the event was skipped
 						{
 							int grandpaScore = Utility.getGrandpaScore();
 							int maxScore = Config.GetMaxScore();
@@ -116,7 +125,7 @@ namespace AngryGrandpa
 								totalNumberOfLoops = 1
 							});
 						}
-						Monitor.Log($"Ran patch for evaluation or re-evaluation event: {nameof(grandpaEvaluations_Postfix)}", LogLevel.Trace);
+						Monitor.Log($"Ran patch for evaluation or re-evaluation event: {nameof(GrandpaEvaluations_Postfix)}", LogLevel.Trace);
 						break;
 					default:
 						break;
@@ -124,11 +133,10 @@ namespace AngryGrandpa
 			}
 			catch (Exception ex)
 			{
-				Monitor.Log($"Failed in {nameof(grandpaEvaluations_Postfix)}:\n{ex}",
+				Monitor.Log($"Failed in {nameof(GrandpaEvaluations_Postfix)}:\n{ex}",
 					LogLevel.Error);
 			}
 		}
-
 
 		/*********
         ** Private methods
