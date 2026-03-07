@@ -136,7 +136,7 @@ namespace AngryGrandpa
             }
         }
         private static readonly string[] ScoringSystemChoices = ["Original", "Vanilla", "Hard", "Expert"];
-        private static readonly string ScoringSystemDefault = ScoringSystemChoices[1]; // Default to "Vanilla"
+        private static readonly string ScoringSystemDefault = ScoringSystemChoices[2]; // Default to "Hard"
         private string _scoringSystem = ScoringSystemDefault;
 
         /// <summary>How many in-game years to wait before grandpa's first visit.</summary>
