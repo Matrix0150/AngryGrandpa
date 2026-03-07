@@ -50,15 +50,6 @@
   <None Update="i18n\default.json">
     <CopyToOutputDirectory>Always</CopyToOutputDirectory>
   </None>
-  <None Update="i18n\fr.json">
-    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-  </None>
-  <None Update="i18n\it.json">
-    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-  </None>
-  <None Update="i18n\pt.json">
-    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-  </None>
 
   <Content Update="assets\Grandpa.png">
     <CopyToOutputDirectory>Always</CopyToOutputDirectory>

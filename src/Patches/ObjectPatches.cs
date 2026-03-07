@@ -51,27 +51,21 @@ namespace AngryGrandpa
 		{
 			try
 			{
-				if ( !(bool)(NetFieldBase<bool, NetBool>)__instance.bigCraftable &&
-					(NetFieldBase<string, NetString>)__instance.type != (NetString)null &&
-					Game1.getFarm().grandpaScore != 0 &&
+				if (!__instance.bigCraftable.Value &&
+				    Game1.getFarm().grandpaScore.Value != 0 &&
 					Game1.currentLocation is Farm)
 				{
-					if (__instance.type.Equals((object)"Arch") &&
-						Game1.player.archaeologyFound.Count() > 0) // They've already found at least one artifact
+					switch (__instance.QualifiedItemId)
 					{
-						switch ((int)(NetFieldBase<int, NetInt>)__instance.parentSheetIndex)
-						{
-							case 114: // Ancient seed
-								__result = i18n.Get("Object.cs.1CandleReward");
-								break;
-							case 107: // Dinosaur egg
-								__result = i18n.Get("Object.cs.2CandleReward");
-								break;
-						}
-					} 
-					else if (((int)(NetFieldBase<int, NetInt>)__instance.parentSheetIndex) == 74) // Prismatic shard
-					{
-						__result = i18n.Get("Object.cs.3CandleReward");
+						case "(O)114": // Ancient seed
+							__result = i18n.Get("Object.cs.1CandleReward");
+							break;
+						case "(O)107": // Dinosaur egg
+							__result = i18n.Get("Object.cs.2CandleReward");
+							break;
+						case "(O)74": // Prismatic shard
+							__result = i18n.Get("Object.cs.3CandleReward");
+							break;
 					}
 				}
 			}

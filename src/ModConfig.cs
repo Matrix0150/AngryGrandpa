@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using GenericModConfigMenu;
 
 namespace AngryGrandpa
 {
@@ -15,7 +16,7 @@ namespace AngryGrandpa
 
         protected static ITranslationHelper i18n = Helper.Translation;
 
-        static readonly string NL = Environment.NewLine;
+        private static readonly string NL = Environment.NewLine;
 
 
         #region Properties and Fields for config values
@@ -41,7 +42,7 @@ namespace AngryGrandpa
                 }
             } 
         }
-        private static readonly string[] GrandpaDialogueChoices = new string[] { "Original", "Vanilla", "Nuclear" };
+        private static readonly string[] GrandpaDialogueChoices = ["Original", "Vanilla", "Nuclear"];
         private static readonly string GrandpaDialogueDefault = GrandpaDialogueChoices[0]; // Default to "Original"
         private string _grandpaDialogue = GrandpaDialogueDefault;
 
@@ -108,7 +109,7 @@ namespace AngryGrandpa
                 }
             }
         }
-        private static readonly string[] PortraitStyleChoices = new string[] { "auto", "Vanilla", "Poltergeister" };
+        private static readonly string[] PortraitStyleChoices = ["auto", "Vanilla", "Poltergeister"];
         internal static readonly string PortraitStyleDefault = PortraitStyleChoices[0]; // Default to "auto"
         private string _portraitStyle = PortraitStyleDefault;
         
@@ -134,7 +135,7 @@ namespace AngryGrandpa
                 }
             }
         }
-        private static readonly string[] ScoringSystemChoices = new string[] { "Original", "Vanilla", "Hard", "Expert" };
+        private static readonly string[] ScoringSystemChoices = ["Original", "Vanilla", "Hard", "Expert"];
         private static readonly string ScoringSystemDefault = ScoringSystemChoices[1]; // Default to "Vanilla"
         private string _scoringSystem = ScoringSystemDefault;
 
@@ -193,7 +194,7 @@ namespace AngryGrandpa
                 _customCandleScores = value;
             }
         }
-        private int[] _customCandleScores = new int[4] { 0, 4, 8, 12 };
+        private int[] _customCandleScores = [0, 4, 8, 12];
         #endregion
 
         #region ModConfig constructor
@@ -214,15 +215,15 @@ namespace AngryGrandpa
             int[] candleScores;
             if (ScoringSystem == "Original" || ScoringSystem == "Vanilla") 
             {
-                candleScores = new int[4] { 0, 4, 8, 12 }; 
+                candleScores = [0, 4, 8, 12]; 
             }
             else if (ScoringSystem == "Hard") 
             {
-                candleScores = new int[4] { 0, 10, 14, 18 }; 
+                candleScores = [0, 10, 14, 18]; 
             }
             else if (ScoringSystem == "Expert")
             {
-                candleScores = new int[4] { 0, 15, 18, 21 };
+                candleScores = [0, 15, 18, 21];
             }
             else if (ScoringSystem == "Custom")
             {
@@ -234,29 +235,14 @@ namespace AngryGrandpa
 
         internal int GetMaxScore()
         {
-            if (ScoringSystem == "Original")
-            {
-                return 13;
-            }
-            else return 21;
+            return ScoringSystem == "Original" ? 13 : 21;
         }
 
-        private static readonly List<string> PortraitNames = 
-            new List<string>
-        {
-            "gpaNeutral",
-            "gpaHappy",
-            "gpaTears",
-            "gpaShock",
-            "gpaLove",
-            "gpaAngry",
-            "gpaSigh",
-            "gpaRage",
-            "gpaFrown",
-            "gpaStern",
-            "gpaSurprise",
-            "gpaJoy"
-        };
+        private static readonly List<string> PortraitNames =
+        [
+            "gpaNeutral", "gpaHappy", "gpaTears", "gpaShock", "gpaLove", "gpaAngry", "gpaSigh", "gpaRage", "gpaFrown", "gpaStern",
+            "gpaSurprise", "gpaJoy",
+        ];
 
         // EventEditor and EvaluationEditor each grab this dictionary for translation tokens
         internal Dictionary<string, string> PortraitTokens = new Dictionary<string, string>();
@@ -287,17 +273,17 @@ namespace AngryGrandpa
         internal static void Save()
         {
             Helper.WriteConfig(Instance);
-            ModConfig.Print();
-            Helper.Content.InvalidateCache(asset // Trigger changed assets to reload on next use.
-                => asset.AssetNameEquals("Strings\\Locations") 
-                || asset.AssetNameEquals("Data\\mail")
-                || asset.AssetNameEquals("Data\\Events\\Farmhouse")
-                || asset.AssetNameEquals("Data\\Events\\Farm")
-                || asset.AssetNameEquals("Portraits\\Grandpa"));
+            Print();
+            Helper.GameContent.InvalidateCache(asset // Trigger changed assets to reload on next use.
+                => asset.NameWithoutLocale.IsEquivalentTo("Strings\\Locations") 
+                || asset.NameWithoutLocale.IsEquivalentTo("Data\\mail")
+                || asset.NameWithoutLocale.IsEquivalentTo("Data\\Events\\Farmhouse")
+                || asset.NameWithoutLocale.IsEquivalentTo("Data\\Events\\Farm")
+                || asset.NameWithoutLocale.IsEquivalentTo("Portraits\\Grandpa"));
         }
 
         /// <summary>Reset all config options to their default values.</summary>
-        internal static void Reset()
+        private static void Reset()
         {
             Instance = new ModConfig();
         }
@@ -305,82 +291,79 @@ namespace AngryGrandpa
         /// <summary>Register API stuff for Generic Mod Config Menu.</summary>
         internal static void SetUpMenu()
         {
-            var api = Helper.ModRegistry.GetApi<GenericModConfigMenu.IApi>
-                ("spacechase0.GenericModConfigMenu");
+            IGenericModConfigMenuApi menu = Helper.ModRegistry.GetApi<IGenericModConfigMenuApi>("spacechase0.GenericModConfigMenu");
 
-            if (api == null)
-                return;
+            if (menu == null) return;
 
-            var manifest = ModEntry.Instance.ModManifest;
-            api.RegisterModConfig(manifest, Reset, Save);
+            IManifest manifest = ModEntry.Instance.ModManifest;
+            menu.Register(manifest, Reset, Save);
 
-            api.RegisterLabel(manifest, i18n.Get("DialogueOptions.title"), "");
+            menu.AddSectionTitle(manifest, () => i18n.Get("DialogueOptions.title"));
 
-            api.RegisterChoiceOption(manifest, 
-                i18n.Get("GrandpaDialogue.name"),
-                i18n.Get("GrandpaDialogue.description", new { NL } ),
-                () => Instance.GrandpaDialogue,
-                (string val) => Instance.GrandpaDialogue = val,
-                ModConfig.GrandpaDialogueChoices);
+            menu.AddTextOption(manifest,
+                               () => Instance.GrandpaDialogue,
+                               val => Instance.GrandpaDialogue = val,
+                               () => i18n.Get("GrandpaDialogue.name"),
+                               () => i18n.Get("GrandpaDialogue.description", new {NL}),
+                               GrandpaDialogueChoices);
 
-            api.RegisterSimpleOption(manifest,
-                i18n.Get("GenderNeutrality.name"),
-                i18n.Get("GenderNeutrality.description"),
-                () => Instance.GenderNeutrality,
-                (bool val) => Instance.GenderNeutrality = val);
+            menu.AddBoolOption(manifest,
+                               () => Instance.GenderNeutrality,
+                               val => Instance.GenderNeutrality = val,
+                               () => i18n.Get("GenderNeutrality.name"),
+                               () => i18n.Get("GenderNeutrality.description"));
 
-            api.RegisterSimpleOption(manifest,
-                i18n.Get("ExpressivePortraits.name"),
-                i18n.Get("ExpressivePortraits.description"),
-                () => Instance.ExpressivePortraits,
-                (bool val) => Instance.ExpressivePortraits = val);
+            menu.AddBoolOption(manifest,
+                               () => Instance.ExpressivePortraits,
+                               val => Instance.ExpressivePortraits = val,
+                               () => i18n.Get("ExpressivePortraits.name"),
+                               () => i18n.Get("ExpressivePortraits.description"));
 
-            api.RegisterChoiceOption(manifest,
-                i18n.Get("PortraitStyle.name"),
-                i18n.Get("PortraitStyle.description", new { NL }),
-                () => Instance.PortraitStyle,
-                (string val) => Instance.PortraitStyle = val,
-                ModConfig.PortraitStyleChoices);
+            menu.AddTextOption(manifest,
+                               () => Instance.PortraitStyle,
+                               val => Instance.PortraitStyle = val,
+                               () => i18n.Get("PortraitStyle.name"),
+                               () => i18n.Get("PortraitStyle.description", new {NL}),
+                               PortraitStyleChoices);
 
-            api.RegisterLabel(manifest, "", "");
-            api.RegisterLabel(manifest, i18n.Get("ScoringOptions.title"), "");
+            menu.AddSectionTitle(manifest, () => i18n.Get("ScoringOptions.title"));
 
-            api.RegisterChoiceOption(manifest,
-                i18n.Get("ScoringSystem.name"),
-                i18n.Get("ScoringSystem.description", new { NL }),
-                () => Instance.ScoringSystem,
-                (string val) => Instance.ScoringSystem = val,
-                ModConfig.ScoringSystemChoices);
+            menu.AddTextOption(manifest,
+                               () => Instance.ScoringSystem,
+                               val => Instance.ScoringSystem = val,
+                               () => i18n.Get("ScoringSystem.name"),
+                               () => i18n.Get("ScoringSystem.description", new {NL}),
+                               ScoringSystemChoices);
 
-            api.RegisterSimpleOption(manifest,
-                i18n.Get("YearsBeforeEvaluation.name"),
-                i18n.Get("YearsBeforeEvaluation.description", new { NL }),
-                () => Instance.YearsBeforeEvaluation,
-                (int val) => Instance.YearsBeforeEvaluation = val);
+            menu.AddNumberOption(manifest,
+                                 () => Instance.YearsBeforeEvaluation,
+                                 val => Instance.YearsBeforeEvaluation = val,
+                                 () => i18n.Get("YearsBeforeEvaluation.name"),
+                                 () => i18n.Get("YearsBeforeEvaluation.description", new {NL}));
 
-            api.RegisterSimpleOption(manifest,
-                i18n.Get("ShowPointsTotal.name"),
-                i18n.Get("ShowPointsTotal.description"),
-                () => Instance.ShowPointsTotal,
-                (bool val) => Instance.ShowPointsTotal = val);
+            menu.AddBoolOption(manifest,
+                               () => Instance.ShowPointsTotal,
+                               val => Instance.ShowPointsTotal = val,
+                               () => i18n.Get("ShowPointsTotal.name"),
+                               () => i18n.Get("ShowPointsTotal.description"));
 
-            api.RegisterLabel(manifest, "", "");
-            api.RegisterLabel(manifest, i18n.Get("Rewards.title"), "");
+            menu.AddSectionTitle(manifest, () => i18n.Get("Rewards.title"));
 
-            api.RegisterSimpleOption(manifest,
-                i18n.Get("BonusRewards.name"),
-                i18n.Get("BonusRewards.description"),
-                () => Instance.BonusRewards,
-                (bool val) => Instance.BonusRewards = val);
+            menu.AddBoolOption(manifest,
+                               () => Instance.BonusRewards,
+                               val => Instance.BonusRewards = val,
+                               () => i18n.Get("BonusRewards.name"),
+                               () => i18n.Get("BonusRewards.description"));
 
-            api.RegisterSimpleOption(manifest,
-                i18n.Get("StatuesForFarmhands.name"),
-                i18n.Get("StatuesForFarmhands.description"),
-                () => Instance.StatuesForFarmhands,
-                (bool val) => Instance.StatuesForFarmhands = val);
+            menu.AddBoolOption(manifest,
+                               () => Instance.StatuesForFarmhands,
+                               val => Instance.StatuesForFarmhands = val,
+                               () => i18n.Get("StatuesForFarmhands.name"),
+                               () => i18n.Get("StatuesForFarmhands.description"));
 
             Monitor.Log("Added Angry Grandpa Config to GMCM", LogLevel.Info);
         }
+
         #endregion
 
         /// <summary>Prints current config values to the console.</summary>

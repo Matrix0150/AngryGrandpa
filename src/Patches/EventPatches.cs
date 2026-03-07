@@ -87,19 +87,15 @@ namespace AngryGrandpa
 			{
 				switch (__instance.id) // Check which event this is... we're patching skipEvent and don't want to affect all.
 				{
-					case "558291": // Initial
-					case "558292": // Reevaluation
+					case Data.EventEval:
+					case Data.EventReeval:
 
 						CheckWorldForStatueOfPerfection(); // Add reward flag to host if any pre-existing statue
-						foreach (int e in new List<int> { 2146991, 321777 }) // Remove candles event, re-evaluation flag
-						{
-							while (Game1.player.eventsSeen.Contains(e)) { Game1.player.eventsSeen.Remove(e); }
-						}
+						Game1.player.eventsSeen.Remove(Data.EventCandle);
+						Game1.player.eventsSeen.Remove(Data.EventRequest);
+
 						// Add a mail flag the FIRST time this mod is used for any evaluation. 
-						if (!Game1.player.mailReceived.Contains("6324hasDoneModdedEvaluation"))
-						{
-							Game1.player.mailReceived.Add("6324hasDoneModdedEvaluation"); // This activates bonus rewards if enabled.
-						}
+						Game1.player.mailReceived.Add("6324hasDoneModdedEvaluation"); // This activates bonus rewards if enabled.
 
 						if (Config.ShowPointsTotal && !__instance.skipped) // Don't show if disabled in config or the event was skipped
 						{
@@ -143,15 +139,14 @@ namespace AngryGrandpa
 		/// </summary>
 		private static void CheckWorldForStatueOfPerfection()
 		{
-			if (Game1.player.IsMainPlayer) // Host will always be present for evaluation events
+			if (!Game1.player.IsMainPlayer) return; // Host will always be present for evaluation events
+			
+			if (!Game1.player.mailReceived.Contains("6324hasDoneModdedEvaluation") && // No modded evaluations yet
+			    !Game1.player.mailReceived.Contains("6324reward4candle") && // They don't already have the flag
+			    Utility.doesItemExistAnywhere("(BC)160")) // They DO have an existing Statue of Perfection somewhere
 			{
-				if (!Game1.player.mailReceived.Contains("6324hasDoneModdedEvaluation") && // No modded evaluations yet
-					!Game1.player.mailReceived.Contains("6324reward4candle") && // They don't already have the flag
-					Utility.doesItemWithThisIndexExistAnywhere(160, true)) // They DO have an existing Statue of Perfection somewhere
-				{
-					Game1.player.mailReceived.Add("6324reward4candle"); // Assume the existing statue belongs to this Host player
-					Monitor.Log($"Found existing Statue of Perfection in world: {nameof(CheckWorldForStatueOfPerfection)}", LogLevel.Trace);
-				}
+				Game1.player.mailReceived.Add("6324reward4candle"); // Assume the existing statue belongs to this Host player
+				Monitor.Log($"Found existing Statue of Perfection in world: {nameof(CheckWorldForStatueOfPerfection)}", LogLevel.Trace);
 			}
 		}
 	}

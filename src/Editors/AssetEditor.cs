@@ -107,36 +107,24 @@ namespace AngryGrandpa
 		/// <summary>Edit the Strings\Locations grandpa note entry and the Data\mail entry.</summary>
 		private void EditGrandpaNote(IAssetData asset)
 		{
-			const string GameKeyLocations = "Farm_GrandpaNote";
-			const string GameKeyMail      = "6324grandpaNoteMail";
-
 			string gameKey;
 			string modKey;
 			string value;
 
 			if (asset.NameWithoutLocale.IsEquivalentTo(Locations))
 			{
-				gameKey = GameKeyLocations;
+				gameKey = "Farm_GrandpaNote";
 				modKey = "GrandpaNote";
 			}
 			else if (asset.NameWithoutLocale.IsEquivalentTo(Mail))
 			{
-				gameKey = GameKeyMail;
+				gameKey = "6324grandpaNoteMail";
 				modKey = "GrandpaNoteMail";
 			}
 			else { return; }
 
-			if (Config.YearsBeforeEvaluation >= 10)
-			{
-				modKey += "TenPlusYears";
-				string smapiSDate = new SDate(1, "spring", Config.YearsBeforeEvaluation + 1).ToLocaleString();
-				value = i18n.Get(modKey, new { smapiSDate });
-			}
-			else
-			{
-				string ordinalYear = i18n.Get("GrandpaOrdinalYears").ToString().Split('|')[Config.YearsBeforeEvaluation];
-				value = i18n.Get(modKey, new { ordinalYear });
-			}
+			string ordinalYear = i18n.Get("GrandpaOrdinalYears").ToString().Split('|')[Config.YearsBeforeEvaluation];
+			value = i18n.Get(modKey, new { ordinalYear });
 
 			var data = asset.AsDictionary<string, string>().Data;
 			data[gameKey] = value;

@@ -89,39 +89,34 @@ namespace AngryGrandpa
                 {
                     throw new Exception("An active save is required.");
                 }
-                var eventsToRemove = new List<int>
+                List<string> eventsToRemove =
+                [
+                    Data.EventEval, Data.EventReeval, Data.EventRequest, // Initial eval, Re-eval, and Evaluation request
+                ];
+                foreach (string evnt in eventsToRemove)
                 {
-                    558291, 558292, 321777 // Initial eval, Re-eval, and Evaluation request
-                };
-                foreach (int e in eventsToRemove)
-                {
-                    while (Game1.player.eventsSeen.Contains(e)) { Game1.player.eventsSeen.Remove(e); }
+                    Game1.player.eventsSeen.Remove(evnt);
                 }
+                
                 // Game1.player.eventsSeen.Remove(2146991); // Candles (removed instead by command_grandpaEvaluation postfix)
                 Game1.getFarm().hasSeenGrandpaNote = false; // Seen the note on the shrine
-                while (Game1.player.mailReceived.Contains("grandpaPerfect")) // Received the statue of perfection
-                { 
-                    Game1.player.mailReceived.Remove("grandpaPerfect"); 
-                } 
+                Game1.player.mailReceived.Remove("grandpaPerfect"); 
                 Game1.getFarm().grandpaScore.Value = 0; // Reset grandpaScore
                 FarmPatches.RemoveCandlesticks(Game1.getFarm()); // Removes all candlesticks (not flames).
-                Game1.getFarm().removeTemporarySpritesWithIDLocal(6666f); // Removes candle flames.
+                Game1.getFarm().removeTemporarySpritesWithIDLocal(6666); // Removes candle flames.
 
                 // Remove flags added by this mod
-                var flagsToRemove = new List<string> 
+                List<string> flagsToRemove = new()
                 {
-                    "6324bonusRewardsEnabled", "6324reward2candles", "6324reward3candles", // Old, outdated flags
-                    "6324grandpaNoteMail", "6324reward1candle", "6324reward2candle", "6324reward3candle", "6324reward4candle", "6324hasDoneModdedEvaluation", // Current used flags
+                    "6324grandpaNoteMail", "6324reward1candle", "6324reward2candle", "6324reward3candle", "6324reward4candle", "6324hasDoneModdedEvaluation",
                 };
                 foreach (string flag in flagsToRemove)
                 {
-                    while (Game1.player.mailReceived.Contains(flag)) { Game1.player.mailReceived.Remove(flag); }
+                    Game1.player.mailReceived.Remove(flag);
                 }
 
-                if (!Game1.player.eventsSeen.Contains(2146991))
-                {
-                    Game1.player.eventsSeen.Add(2146991); // Make sure they can't see candle event before the next evaluation.
-                }
+                // Make sure they can't see candle event before the next evaluation.
+                Game1.player.eventsSeen.Add(Data.EventCandle); 
 
                 Monitor.Log($"Reset grandpaScore and associated event and mail flags for all evaluations.", LogLevel.Info);
             }
@@ -162,8 +157,8 @@ namespace AngryGrandpa
                     throw new Exception("An active save is required.");
                 }
 
-                List<int> eventsAG = new List<int> { 558291, 558292, 2146991, 321777 };
-                List<string> mailAG = new List<string> { "6324grandpaNoteMail", "6324reward1candle", "6324reward2candle", "6324reward3candle", "6324reward4candle", "6324bonusRewardsEnabled", "6324hasDoneModdedEvaluation" };
+                List<string> eventsAG = [Data.EventEval, Data.EventReeval, Data.EventCandle, Data.EventRequest];
+                List<string> mailAG = ["6324grandpaNoteMail", "6324reward1candle", "6324reward2candle", "6324reward3candle", "6324reward4candle", "6324bonusRewardsEnabled", "6324hasDoneModdedEvaluation"];
 
                 Monitor.Log($"DEBUG\n" +
                     $"    Actual current Farm.grandpaScore value: {Game1.getFarm().grandpaScore.Value}\n" +

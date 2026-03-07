@@ -40,11 +40,6 @@
     "GrandpaNote": "{0}-\n\nWait for my return on the dawn of your {{ordinalYear}} year.\n\n-Grandpa",
     "GrandpaNoteMail": "@-^^Wait for my return on the dawn of your {{ordinalYear}} year.^^-Grandpa[#]Grandpa's Note",
 
-    // Do not change {{smapiSDate}} tokens; these automatically generate a translated date string.
-    // smapiSDate example: "Spring 1 in year 15" or "le 1 printemps de l'année 12"
-    "GrandpaNoteTenPlusYears": "{0}-\n\nWait for my return on {{smapiSDate}}.\n\n-Grandpa",
-    "GrandpaNoteMailTenPlusYears": "@-^^Wait for my return on {{smapiSDate}}.^^-Grandpa[#]Grandpa's Note",
-    
 
 // =====================================
 // TRANSLATION TEXT FOR DISPLAY MESSAGES

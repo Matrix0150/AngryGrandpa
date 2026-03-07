@@ -49,7 +49,6 @@ namespace AngryGrandpa
             //Harmony.PatchAll();
             EventPatches.Apply();
             FarmPatches.Apply();
-            ItemGrabMenuPatches.Apply();
             ObjectPatches.Apply();
             UtilityPatches.Apply();
 
@@ -62,9 +61,6 @@ namespace AngryGrandpa
             helper.Events.GameLoop.SaveLoaded += this.onSaveLoaded;
             helper.Events.GameLoop.DayStarted += this.onDayStarted;
             helper.Events.Player.Warped += this.onWarped;
-
-            // Set up early portrait asset editor - used if set to automatic.
-            helper.GameContent.AssetEditors.Add(new PortraitEditor(overrideEdits: false));
         }
 
 
@@ -100,12 +96,8 @@ namespace AngryGrandpa
             else // Is second update tick
             {
                 Instance.Helper.Events.GameLoop.UpdateTicked -= this.onUpdateTicked; // Don't check again
-
-                // Set up asset loaders/editors. PortraitEditor is added in the Entry method instead.
-                Instance.Helper.Content.AssetEditors.Add(new AssetEditor());
-                Instance.Helper.Content.AssetEditors.Add(new EventEditor());
-                Instance.Helper.Content.AssetEditors.Add(new EvaluationEditor());
-                Instance.Helper.Content.AssetEditors.Add(new PortraitEditor(overrideEdits: true));
+                AssetEditor assetEditor = new AssetEditor();
+                assetEditor.Register();
             }
         }
 
@@ -117,12 +109,12 @@ namespace AngryGrandpa
         /// <param name="e">The event arguments.</param>
         private void onSaveLoaded(object sender, SaveLoadedEventArgs e)
         {
-            if (Game1.getFarm().hasSeenGrandpaNote
-                && Game1.player.mailReceived[0] != "6324grandpaNoteMail" ) // Missing (or misplaced) AG mail flag?
-            {
-                Game1.player.mailReceived.Remove("6324grandpaNoteMail");
-                Game1.player.mailReceived.Insert(0, "6324grandpaNoteMail"); // Insert grandpa note first on mail tab
-            }
+            // if (Game1.getFarm().hasSeenGrandpaNote
+            //     && Game1.player.mailReceived[0] != "6324grandpaNoteMail" ) // Missing (or misplaced) AG mail flag?
+            // {
+            //     Game1.player.mailReceived.Remove("6324grandpaNoteMail");
+            //     Game1.player.mailReceived.Insert(0, "6324grandpaNoteMail"); // Insert grandpa note first on mail tab
+            // }
             CurrentYear = Game1.year; // Track year for updating cached Events
         }
 
@@ -162,9 +154,9 @@ namespace AngryGrandpa
             if (Game1.year != CurrentYear) // Need to reload assets that contain references to years passed
             {
                 CurrentYear = Game1.year; // Update tracked value
-                Helper.Content.InvalidateCache(asset // Trigger changed assets to reload on next use.
-                => asset.AssetNameEquals("Data\\Events\\Farmhouse")
-                || asset.AssetNameEquals("Data\\Events\\Farm"));
+                Helper.GameContent.InvalidateCache(asset // Trigger changed assets to reload on next use.
+                => asset.NameWithoutLocale.IsEquivalentTo("Data\\Events\\Farmhouse")
+                || asset.NameWithoutLocale.IsEquivalentTo("Data\\Events\\Farm"));
             }
         }
     }

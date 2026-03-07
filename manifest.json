@@ -8,11 +8,7 @@
     "MinimumApiVersion": "3.5.0",
     "UpdateKeys": ["Nexus:6324"],
     "Dependencies": [
-        { "UniqueID": "Jonqora.BugFixAddItem", "IsRequired": false },
-        { "UniqueID": "Hana.GenderNeutralityMod", "IsRequired": false },
         { "UniqueID": "spacechase0.GenericModConfigMenu", "IsRequired": false },
-        { "UniqueID": "Pathoschild.ContentPatcher", "IsRequired": false },
-        { "UniqueID": "Poltergeister.SlightlyEditedPortraits", "IsRequired": false },
-        { "UniqueID": "Poltergeister.SeasonalCuteCharacters", "IsRequired": false }
+        { "UniqueID": "Pathoschild.ContentPatcher", "IsRequired": false }
     ]
   }
